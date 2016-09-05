@@ -24,15 +24,15 @@ typedef struct {
 	int targ[2],
 		val[2],
 		valLast[2],
-		err;
+		err,
+		out;
 	float kP,
 		kI,
 		kD,
 		prop,
 		integ,
 		integLim,
-		deriv,
-		out;
+		deriv;
 } Pid;
 
 typedef struct {
@@ -90,7 +90,7 @@ void newPidTarg(Pid* pid, float targX, float targY) {
 	pid->integ = 0;
 }
 
-void updatePid(Pid* pid, float x, float y, int dt = 20) {
+int updatePid(Pid* pid, float x, float y, int dt = 20) {
 	pid->valLast[0] = pid->val[0];
 	pid->valLast[1] = pid->val[1];
 	pid->val[0] = x;
@@ -107,7 +107,8 @@ void updatePid(Pid* pid, float x, float y, int dt = 20) {
 		: pid->integLim * sgn(pid->integ);
 	pid->deriv = (pid->val - pid->valLast) * pid->kD * 20 / dt;
 
-	pid->out = pid->prop + pid->integ + pid->deriv;
+	pid->out = (int) round(pid->prop + pid->integ + pid->deriv);
+	return pid->out;
 }
 
 void setLDrive(int pwr) {
